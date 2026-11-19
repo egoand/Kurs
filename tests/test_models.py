@@ -83,7 +83,7 @@ def test_staff_from_row_new_schema():
 
 
 def test_staff_from_row_fallback():
-    row = {"id": 2, "name": "X", "type": "support", "role": "программист"}
+    row = {"id": 2, "name": "X", "type": "support", "position": "программист", "department": ""}
     s = Staff.from_row(row)
     assert s.type == "support"
     assert s.role == "программист"
