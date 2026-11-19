@@ -1,5 +1,5 @@
 ZAV_QSS = """
-QMainWindow, QWidget { background:#f5f0f0; font-family:'Segoe UI', system-ui, Roboto, sans-serif; }
+QMainWindow, QWidget { background:#f5f0f0; font-family:'Segoe UI', system-ui, Roboto, sans-serif; color:#2d1e1e; }
 
 QLabel#headerLbl {
     background:qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #b33f3f, stop:0.5 #6b4b9a, stop:1 #2b5797);
@@ -8,14 +8,15 @@ QLabel#headerLbl {
 
 QTabWidget::pane { border:none; background:transparent; }
 QTabWidget::tab-bar { left:0; }
+QTabWidget > QWidget { background:#f5f0f0; color:#2d1e1e; }
 QTabBar { background:transparent; }
 QTabBar::tab {
-    background:rgba(255,255,255,0.12); color:#ffe0e0;
+    background:rgba(255,255,255,0.35); color:#7a2f2f;
     padding:10px 28px; min-width:120px;
     border-radius:30px; margin-right:8px;
     font-size:15px; font-weight:600;
 }
-QTabBar::tab:hover { background:rgba(255,255,255,0.2); }
+QTabBar::tab:hover { background:rgba(255,255,255,0.6); color:#b33f3f; }
 QTabBar::tab:selected { background:white; color:#b33f3f; font-size:17px; padding:10px 32px; }
 
 QLineEdit, QTextEdit, QSpinBox, QDateEdit {
@@ -97,7 +98,7 @@ QScrollArea > QWidget > QWidget { background:transparent; }
 """
 
 ISP_QSS = """
-QMainWindow, QWidget { background:#eef2f7; font-family:'Segoe UI', system-ui, Roboto, sans-serif; }
+QMainWindow, QWidget { background:#eef2f7; font-family:'Segoe UI', system-ui, Roboto, sans-serif; color:#0f172a; }
 
 QLabel#headerLbl {
     background:qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 #1e3a6f, stop:1 #2b5797);
@@ -106,14 +107,15 @@ QLabel#headerLbl {
 
 QTabWidget::pane { border:none; background:transparent; }
 QTabWidget::tab-bar { left:0; }
+QTabWidget > QWidget { background:#eef2f7; color:#0f172a; }
 QTabBar { background:transparent; }
 QTabBar::tab {
-    background:rgba(255,255,255,0.12); color:#e0e7ff;
+    background:rgba(255,255,255,0.35); color:#1e3a6f;
     padding:10px 28px; min-width:120px;
     border-radius:30px; margin-right:8px;
     font-size:15px; font-weight:600;
 }
-QTabBar::tab:hover { background:rgba(255,255,255,0.2); }
+QTabBar::tab:hover { background:rgba(255,255,255,0.6); color:#2b5797; }
 QTabBar::tab:selected { background:white; color:#1e3a6f; font-size:17px; padding:10px 32px; }
 
 QLineEdit, QSpinBox {

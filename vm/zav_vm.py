@@ -34,6 +34,7 @@ class ZavVM:
 
     def archive(self, task):
         self._service.archive(task)
+        self.tasks = self._service.load_all()
 
     def create(self, title, description, eval_days, start_date, end_date):
         err = self._service.create(title, description, eval_days, start_date, end_date)
@@ -42,6 +43,6 @@ class ZavVM:
         return err
 
     def edit_performers(self, task, performers):
-        from db import db
-        db.execute("UPDATE tasks SET performers=%s WHERE id=%s", (performers, task.id))
-        task.performers = performers
+        names = [x.strip() for x in performers.split(",") if x.strip()]
+        self._service.assign(task, names)
+        self.tasks = self._service.load_all()

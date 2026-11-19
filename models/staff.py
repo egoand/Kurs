@@ -7,4 +7,8 @@ class Staff:
 
     @classmethod
     def from_row(cls, row):
-        return cls(row['id'], row['name'], row['type'], row['role'])
+        type_code = row.get('type_code') or row.get('type') or 'support'
+        position = row.get('position') or ''
+        department = row.get('department') or ''
+        role = f"{position} | {department}".strip(' |')
+        return cls(row['id'], row['name'], type_code, role)
