@@ -53,9 +53,8 @@ def test_assign_sets_performers_and_status(fake_task_repo, make_task):
     svc = TaskService(fake_task_repo)
     t = make_task(status="evaluated")
     svc.assign(t, ["A", "B"])
-    assert t.performers == "A, B"
     assert t.status == "assigned"
-    assert fake_task_repo.assigns == [(1, "A, B")]
+    assert fake_task_repo.assigns == [(1, [3, 4])]
 
 
 def test_archive_sets_status(fake_task_repo, make_task):
@@ -110,13 +109,19 @@ def test_add_rating_rejects_when_cannot_rate(fake_task_repo, today, make_task):
     assert svc.add_rating(t, "X", 80) == "Оценка недоступна"
 
 
+def test_add_rating_unknown_staff(fake_task_repo, today, make_task):
+    svc = TaskService(fake_task_repo, today_fn=lambda: today)
+    t = make_task(status="pending", eval_deadline=today + timedelta(days=1))
+    assert svc.add_rating(t, "Неизвестный", 80) == "Сотрудник не найден"
+
+
 def test_add_rating_success_appends(fake_task_repo, today, make_task):
     svc = TaskService(fake_task_repo, today_fn=lambda: today)
     t = make_task(status="pending", eval_deadline=today + timedelta(days=1))
-    err = svc.add_rating(t, "X", 80)
+    err = svc.add_rating(t, "A", 80)
     assert err is None
-    assert t.ratings == [{"name": "X", "score": 80}]
-    assert fake_task_repo.ratings == [(1, "X", 80)]
+    assert t.ratings == [{"staff_id": 3, "name": "A", "score": 80}]
+    assert fake_task_repo.ratings == [(1, 3, 80)]
 
 
 def test_start_fails_before_start_date(fake_task_repo, today, make_task):
@@ -137,19 +142,27 @@ def test_start_success_sets_in_progress(fake_task_repo, today, make_task):
 
 def test_complete_single_performer(fake_task_repo, today, make_task):
     svc = TaskService(fake_task_repo, today_fn=lambda: today)
-    t = make_task(status="in_progress", start_date=today, performers="A")
+    t = make_task(status="in_progress", start_date=today, performers="A",
+                  assignments=[{"staff_id": 3, "name": "A", "is_done": False}])
     assert svc.complete(t, "A") is None
     assert t.status == "completed"
+    assert fake_task_repo.marked_done == [(1, 3)]
     assert fake_task_repo.status_updates == [(1, "completed")]
 
 
 def test_complete_multi_waits_for_all(fake_task_repo, today, make_task):
     svc = TaskService(fake_task_repo, today_fn=lambda: today)
-    t = make_task(status="in_progress", start_date=today, performers="A, B")
+    t = make_task(
+        status="in_progress", start_date=today, performers="A, B",
+        assignments=[
+            {"staff_id": 3, "name": "A", "is_done": False},
+            {"staff_id": 4, "name": "B", "is_done": False},
+        ],
+    )
     svc.complete(t, "A")
     assert t.status == "in_progress"
     assert "A" in t.performers_done
-    assert fake_task_repo.marked_done == [(1, "A")]
+    assert fake_task_repo.marked_done == [(1, 3)]
     assert fake_task_repo.status_updates == []
 
     svc.complete(t, "B")
@@ -159,7 +172,16 @@ def test_complete_multi_waits_for_all(fake_task_repo, today, make_task):
 
 def test_complete_fails_before_start_date(fake_task_repo, today, make_task):
     svc = TaskService(fake_task_repo, today_fn=lambda: today)
-    t = make_task(status="in_progress", start_date=today + timedelta(days=1), performers="A")
+    t = make_task(status="in_progress", start_date=today + timedelta(days=1),
+                  performers="A",
+                  assignments=[{"staff_id": 3, "name": "A", "is_done": False}])
     err = svc.complete(t, "A")
     assert err is not None
     assert t.status == "in_progress"
+
+
+def test_complete_unknown_staff(fake_task_repo, today, make_task):
+    svc = TaskService(fake_task_repo, today_fn=lambda: today)
+    t = make_task(status="in_progress", start_date=today, performers="A",
+                  assignments=[{"staff_id": 3, "name": "A", "is_done": False}])
+    assert svc.complete(t, "Неизвестный") == "Сотрудник не найден"
